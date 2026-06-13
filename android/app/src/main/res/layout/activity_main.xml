@@ -18,6 +18,13 @@
         android:layout_height="wrap_content"
         android:hint="Paste YouTube URL"
         android:padding="8dp"/>
+    <EditText
+        android:id="@+id/startTimeInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Start time in seconds (e.g. 90)"
+        android:inputType="number"
+        android:padding="8dp"/>
 
     <Button
         android:id="@+id/startBtn"

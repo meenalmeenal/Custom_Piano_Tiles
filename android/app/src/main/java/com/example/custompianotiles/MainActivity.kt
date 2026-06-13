@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
 
         gameView = findViewById(R.id.gameView)
         val urlInput = findViewById<EditText>(R.id.urlInput)
+        val startTimeInput = findViewById<EditText>(R.id.startTimeInput)
         val startBtn = findViewById<Button>(R.id.startBtn)
         val scoreText = findViewById<TextView>(R.id.scoreText)
 
@@ -40,18 +41,34 @@ class MainActivity : AppCompatActivity() {
 
         startBtn.setOnClickListener {
             val url = urlInput.text.toString()
+            val startTime = startTimeInput.text.toString().toIntOrNull() ?: 0
             if (url.isNotEmpty()) {
                 score = 0
                 scoreText.text = "Score: 0"
+                startBtn.isEnabled = false
+                startBtn.text = "Loading..."
                 lifecycleScope.launch {
                     try {
-                        val data = RetrofitClient.api.analyze(url)
+                        val data = RetrofitClient.api.analyze(url, startTime)
                         player.setMediaItem(MediaItem.fromUri(data.stream_url))
                         player.prepare()
                         player.play()
+                        player.seekTo((startTime * 1000).toLong())
+                        player.prepare()
+                        player.play()
+                        player.seekTo((startTime * 1000).toLong())
+                        lifecycleScope.launch {
+                            kotlinx.coroutines.delay(60000)
+                            runOnUiThread { player.stop() }
+                        }
                         gameView.start(data.onsets)
                     } catch (e: Exception) {
                         runOnUiThread { Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show() }
+                    } finally {
+                        runOnUiThread {
+                            startBtn.isEnabled = true
+                            startBtn.text = "Start"
+                        }
                     }
                 }
             }

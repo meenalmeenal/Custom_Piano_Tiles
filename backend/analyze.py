@@ -4,13 +4,15 @@ import numpy as np
 import tempfile
 import os
 
-def analyze_song(yt_url: str):
+def analyze_song(yt_url: str, start_time: int = 0):
     with tempfile.TemporaryDirectory() as tmpdir:
         ydl_opts = {
-            'format': 'bestaudio',
+            'format': 'worstaudio',  # smallest file = faster download
             'outtmpl': f'{tmpdir}/audio.%(ext)s',
             'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'wav'}],
-            'quiet': True
+            'quiet': True,
+            'download_ranges': lambda info, _: [{'start_time': start_time, 'end_time': start_time + 60}],
+            'force_keyframes_at_cuts': True,
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([yt_url])
