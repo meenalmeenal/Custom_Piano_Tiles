@@ -26,16 +26,20 @@ class MainActivity : AppCompatActivity() {
 
         player = ExoPlayer.Builder(this).build()
 
-        gameView.onHit = {
-            score++
+        gameView.onHit = { points ->
+            score += points
             runOnUiThread { scoreText.text = "Score: $score" }
         }
 
         gameView.onMiss = {
             runOnUiThread {
-                Toast.makeText(this, "Game Over! Score: $score", Toast.LENGTH_LONG).show()
-                player.stop()
-                gameView.stop()
+                try {
+                    Toast.makeText(this, "Game Over! Score: $score", Toast.LENGTH_LONG).show()
+                    player.stop()
+                    gameView.stop()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }
 
