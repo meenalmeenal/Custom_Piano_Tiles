@@ -52,16 +52,13 @@ class MainActivity : AppCompatActivity() {
                         val data = RetrofitClient.api.analyze(url, startTime)
                         player.setMediaItem(MediaItem.fromUri(data.stream_url))
                         player.prepare()
-                        player.play()
                         player.seekTo((startTime * 1000).toLong())
-                        player.prepare()
                         player.play()
-                        player.seekTo((startTime * 1000).toLong())
+                        gameView.start(data.onsets)
                         lifecycleScope.launch {
                             kotlinx.coroutines.delay(60000)
                             runOnUiThread { player.stop() }
                         }
-                        gameView.start(data.onsets)
                     } catch (e: Exception) {
                         runOnUiThread { Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show() }
                     } finally {
