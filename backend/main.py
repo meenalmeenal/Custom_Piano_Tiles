@@ -12,6 +12,5 @@ app.add_middleware(
 )
 
 @app.get("/analyze")
-def analyze(url: str):
-    result = analyze_song(url)
-    return result
+def analyze(url: str, start_time: int = 0):
+    return analyze_song(url, start_time)

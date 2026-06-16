@@ -92,9 +92,9 @@ class GameView(context: Context, attrs: AttributeSet? = null) : View(context, at
             val bpm = 60.0 / avgGap
             scrollSpeed = (bpm / 120f * 5f).toFloat().coerceIn(3f, 8f)
         }
-
+        val leadMs = (((judgmentY + tileHeight / 2f) / scrollSpeed) / 60f * 1000f).toLong()
         rows.forEachIndexed { rowIdx, rowOnsets ->
-            val delayMs = (rowOnsets[0] * 1000).toLong()
+            val delayMs = ((rowOnsets[0] * 1000).toLong() - leadMs).coerceAtLeast(0)
             val usedCols = mutableSetOf<Int>()
 
             val nextRowTime = if (rowIdx + 1 < rows.size) rows[rowIdx + 1][0] else rowOnsets[0] + 0.5
@@ -220,9 +220,9 @@ class GameView(context: Context, attrs: AttributeSet? = null) : View(context, at
             MotionEvent.ACTION_DOWN -> {
                 // tap anywhere on the tile — score based on distance from judgment line
                 android.util.Log.d("TOUCH", "touchY=${event.y} col=$col tiles=${tiles.map { "${it.y} to ${it.y + it.tileHeight}" }}")
-                val tile = tiles.firstOrNull {
-                    !it.hit && !it.holding && it.col == col
-                }
+                val tile = tiles.filter { !it.hit && !it.holding && it.col == col }
+                    .minByOrNull { Math.abs((it.y + tileHeight / 2) - judgmentY) }
+                    ?.takeIf { Math.abs((it.y + tileHeight / 2) - judgmentY) < 250 }
                 if (tile != null) {
                     val (judgment, points) = getJudgment(tile.y)
                     showJudgment(judgment, event.x)
